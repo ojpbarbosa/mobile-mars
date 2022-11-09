@@ -1,0 +1,198 @@
+[
+  {
+    "CidadeOrigem": "Acheron",
+    "CidadeDestino": "Echus Overlook",
+    "Distancia": 2300,
+    "Tempo": 19,
+    "Custo": 100
+  },
+  {
+    "CidadeOrigem": "Arrakeen",
+    "CidadeDestino": "Gondor",
+    "Distancia": 3500,
+    "Tempo": 17,
+    "Custo": 100
+  },
+  {
+    "CidadeOrigem": "Bradbury",
+    "CidadeDestino": "Odessa",
+    "Distancia": 4800,
+    "Tempo": 27,
+    "Custo": 160
+  },
+  {
+    "CidadeOrigem": "Bradbury",
+    "CidadeDestino": "Underhill",
+    "Distancia": 3000,
+    "Tempo": 18,
+    "Custo": 110
+  },
+  {
+    "CidadeOrigem": "Burroughs",
+    "CidadeDestino": "Arena",
+    "Distancia": 1000,
+    "Tempo": 8,
+    "Custo": 60
+  },
+  {
+    "CidadeOrigem": "Burroughs",
+    "CidadeDestino": "Lowell",
+    "Distancia": 3980,
+    "Tempo": 20,
+    "Custo": 120
+  },
+  {
+    "CidadeOrigem": "Cairo",
+    "CidadeDestino": "Senzeni Na",
+    "Distancia": 2000,
+    "Tempo": 13,
+    "Custo": 80
+  },
+  {
+    "CidadeOrigem": "Cairo",
+    "CidadeDestino": "Underhill",
+    "Distancia": 4000,
+    "Tempo": 20,
+    "Custo": 120
+  },
+  {
+    "CidadeOrigem": "Dumont",
+    "CidadeDestino": "Burroughs",
+    "Distancia": 3800,
+    "Tempo": 18,
+    "Custo": 95
+  },
+  {
+    "CidadeOrigem": "Echus Overlook",
+    "CidadeDestino": "Cairo",
+    "Distancia": 1900,
+    "Tempo": 15,
+    "Custo": 90
+  },
+  {
+    "CidadeOrigem": "Echus Overlook",
+    "CidadeDestino": "Sheffield",
+    "Distancia": 1700,
+    "Tempo": 13,
+    "Custo": 80
+  },
+  {
+    "CidadeOrigem": "Gondor",
+    "CidadeDestino": "Lowell",
+    "Distancia": 2000,
+    "Tempo": 16,
+    "Custo": 80
+  },
+  {
+    "CidadeOrigem": "Gondor",
+    "CidadeDestino": "Moria",
+    "Distancia": 1200,
+    "Tempo": 10,
+    "Custo": 60
+  },
+  {
+    "CidadeOrigem": "Nicosia",
+    "CidadeDestino": "Arrakeen",
+    "Distancia": 2200,
+    "Tempo": 14,
+    "Custo": 75
+  },
+  {
+    "CidadeOrigem": "Odessa",
+    "CidadeDestino": "Bakhuysen",
+    "Distancia": 1400,
+    "Tempo": 11,
+    "Custo": 65
+  },
+  {
+    "CidadeOrigem": "Odessa",
+    "CidadeDestino": "Esperanca",
+    "Distancia": 4030,
+    "Tempo": 21,
+    "Custo": 100
+  },
+  {
+    "CidadeOrigem": "Odessa",
+    "CidadeDestino": "Lakefront",
+    "Distancia": 1010,
+    "Tempo": 7,
+    "Custo": 50
+  },
+  {
+    "CidadeOrigem": "Odessa",
+    "CidadeDestino": "Perseveranca",
+    "Distancia": 1500,
+    "Tempo": 12,
+    "Custo": 75
+  },
+  {
+    "CidadeOrigem": "Odessa",
+    "CidadeDestino": "Temperanca",
+    "Distancia": 2350,
+    "Tempo": 14,
+    "Custo": 90
+  },
+  {
+    "CidadeOrigem": "Rowan",
+    "CidadeDestino": "Lakefront",
+    "Distancia": 2100,
+    "Tempo": 17,
+    "Custo": 95
+  },
+  {
+    "CidadeOrigem": "Rowan",
+    "CidadeDestino": "Odessa",
+    "Distancia": 1100,
+    "Tempo": 9,
+    "Custo": 60
+  },
+  {
+    "CidadeOrigem": "Senzeni Na",
+    "CidadeDestino": "Gondor",
+    "Distancia": 5500,
+    "Tempo": 30,
+    "Custo": 200
+  },
+  {
+    "CidadeOrigem": "Sheffield",
+    "CidadeDestino": "Cairo",
+    "Distancia": 1100,
+    "Tempo": 10,
+    "Custo": 70
+  },
+  {
+    "CidadeOrigem": "Sheffield",
+    "CidadeDestino": "Nicosia",
+    "Distancia": 300,
+    "Tempo": 2,
+    "Custo": 30
+  },
+  {
+    "CidadeOrigem": "Sheffield",
+    "CidadeDestino": "Tharsis",
+    "Distancia": 400,
+    "Tempo": 5,
+    "Custo": 100
+  },
+  {
+    "CidadeOrigem": "Temperanca",
+    "CidadeDestino": "Gondor",
+    "Distancia": 3900,
+    "Tempo": 20,
+    "Custo": 110
+  },
+  {
+    "CidadeOrigem": "Underhill",
+    "CidadeDestino": "Dumont",
+    "Distancia": 4050,
+    "Tempo": 20,
+    "Custo": 110
+  },
+  {
+    "CidadeOrigem": "Underhill",
+    "CidadeDestino": "Rowan",
+    "Distancia": 4140,
+    "Tempo": 21,
+    "Custo": 130
+  }
+]
