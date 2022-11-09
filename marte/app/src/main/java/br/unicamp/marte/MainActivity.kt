@@ -12,11 +12,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val cidades: List<Cidade> = Gson()
-            .fromJson(lerArquivo("CidadesMarte.json"), object : TypeToken<List<Cidade>>() {}.type)
+        val cidades: Array<Cidade> = Gson()
+            .fromJson(lerArquivo("CidadesMarte.json"), object : TypeToken<Array<Cidade>>() {}.type)
 
-        val caminhos: List<Caminho> = Gson()
-            .fromJson(lerArquivo("CaminhoEntreCidadesMarte.json"), object : TypeToken<List<Caminho>>() {}.type)
+        val caminhos: Array<Caminho> = Gson()
+            .fromJson(lerArquivo("CaminhoEntreCidadesMarte.json"), object : TypeToken<Array<Caminho>>() {}.type)
+
+        val adjacencias = Array(cidades.size) { IntArray(cidades.size) }
+
+        caminhos.forEach { caminho ->
+            val origem = cidades.indexOf(cidades.find { cidade ->
+                cidade.nome == caminho.cidadeOrigem
+            })
+
+            val destino = cidades.indexOf(cidades.find { cidade ->
+                cidade.nome == caminho.cidadeDestino
+            })
+
+            adjacencias[origem][destino] = caminho.distancia!!
+        }
     }
 
     fun lerArquivo(arquivo: String): String {
