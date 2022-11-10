@@ -16,15 +16,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.089"
-        android:textSize="24sp" />
+        android:textSize="16sp" />
 
-    <ListView
-        android:id="@+id/list_view_origem"
-        android:layout_width="150dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="32dp"
+    <Spinner
+        android:id="@+id/spinner_origem"
+        android:layout_width="172dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.185"
+        app:layout_constraintHorizontal_bias="0.184"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -32,21 +32,70 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/para"
-        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.055"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.218" />
+        app:layout_constraintVertical_bias="0.21"
+        android:textSize="16sp" />
 
-    <ListView
-        android:id="@+id/list_view_destino"
-        android:layout_width="150dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="80dp"
+    <Spinner
+        android:id="@+id/spinner_destino"
+        android:layout_width="172dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="72dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.184"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:layout_width="91dp"
+        android:layout_height="68dp"
+        android:layout_marginTop="120dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.059"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/radio_button_recursao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onAlgoritmoSelecionado"
+            android:text="@string/recursao"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radio_button_dijkstra"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onAlgoritmoSelecionado"
+            android:text="@string/dijkstra" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/button_buscar"
+        android:layout_width="83dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="136dp"
+        android:text="@string/buscar"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.268"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+        android:id="@+id/list_view_caminhos"
+        android:layout_width="219dp"
+        android:layout_height="187dp"
+        android:layout_marginTop="196dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.074"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

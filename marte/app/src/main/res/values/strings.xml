@@ -2,4 +2,7 @@
     <string name="app_name">marte</string>
     <string name="de">De</string>
     <string name="para">Para</string>
+    <string name="buscar">Buscar</string>
+    <string name="dijkstra">Dijkstra</string>
+    <string name="recursao">Recursão</string>
 </resources>
