@@ -1,3 +1,6 @@
+// Gabriel Willian Bartmanovicz - 21234
+// João Pedro Ferreira Barbosa - 21687
+
 package br.unicamp.marte
 
 import com.google.gson.annotations.SerializedName
