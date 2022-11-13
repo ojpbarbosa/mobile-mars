@@ -61,7 +61,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
-            android:id="@+id/radio_button_recursao"
+            android:id="@+id/radio_button_recursivo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onAlgoritmoSelecionado"
