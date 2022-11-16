@@ -104,6 +104,7 @@
     </RadioGroup>
 
     <ImageView
+        android:id="@+id/image_view_mapa"
         android:layout_width="478dp"
         android:layout_height="240dp"
         android:layout_marginTop="64dp"

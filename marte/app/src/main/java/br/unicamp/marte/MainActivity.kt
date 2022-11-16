@@ -3,10 +3,12 @@
 
 package br.unicamp.marte
 
+import android.graphics.*
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Spinner
 import android.widget.Toast
@@ -25,6 +27,8 @@ class MainActivity : AppCompatActivity() {
         // em um array de objetos da classe Cidade
         val cidades: Array<Cidade> = Gson()
             .fromJson(lerArquivo("CidadesMarte.json"), object : TypeToken<Array<Cidade>>() {}.type)
+
+        desenharCidades(cidades)
 
         // atribuição do adaptador do spinner das cidades de origem
         // como um ArrayAdapter de string que assume como valor os
@@ -69,12 +73,13 @@ class MainActivity : AppCompatActivity() {
                 cidade.nome == caminho.cidadeDestino
             })
 
+            desenharCaminho(caminho)
+
             // e atribui-se à matriz a distância
             // correspondente entre as cidades
             adjacencias[indiceOrigem][indiceDestino] = caminho.distancia!!
         }
     }
-
 
     fun lerArquivo(arquivo: String): String {
         lateinit var conteudo: String
@@ -114,5 +119,25 @@ class MainActivity : AppCompatActivity() {
                         algoritmoSelecionado = Algoritmo.Dijkstra
             }
         }
+    }
+
+    fun desenharCidades(cidades: Array<Cidade>) {
+        val mapaImageView: ImageView = findViewById(R.id.image_view_mapa)
+
+        val bitmap = Bitmap.createBitmap(478, 240, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val paint = Paint()
+        paint.color = Color.BLUE
+        paint.textSize = 48 * resources.displayMetrics.density
+
+        canvas.drawText("Teste",
+            (478 / 2).toFloat(), (240 / 2).toFloat(), paint)
+
+        mapaImageView.setImageBitmap(bitmap)
+    }
+
+    fun desenharCaminho(caminho: Caminho) {
+
     }
 }
