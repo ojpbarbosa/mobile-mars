@@ -37,8 +37,7 @@ class MainActivity : AppCompatActivity() {
             )
         val origemSpinner: Spinner = findViewById(R.id.spinner_origem)
         origemSpinner.adapter = origemSpinnerAdapter
-        // TODO: set selected spinner element as the first city
-        // https://stackoverflow.com/questions/11072576/set-selected-item-of-spinner-programmatically
+        origemSpinner.setSelection(0)
 
         // atribuição do adaptador do spinner das cidades de destino
         // como um ArrayAdapter de string que assume como valor os
@@ -51,8 +50,7 @@ class MainActivity : AppCompatActivity() {
             )
         val destinoSpinner: Spinner = findViewById(R.id.spinner_destino)
         destinoSpinner.adapter = destinoSpinnerAdapter
-        // TODO: set selected spinner element as the second city
-        // https://stackoverflow.com/questions/11072576/set-selected-item-of-spinner-programmatically
+        destinoSpinner.setSelection(1)
 
         // leitura e conversão do arquivo JSON de caminhos
         // em um array de objetos da classe Caminho
@@ -76,6 +74,7 @@ class MainActivity : AppCompatActivity() {
             adjacencias[indiceOrigem][indiceDestino] = caminho.distancia!!
         }
     }
+
 
     fun lerArquivo(arquivo: String): String {
         lateinit var conteudo: String

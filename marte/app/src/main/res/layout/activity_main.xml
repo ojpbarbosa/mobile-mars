@@ -104,13 +104,13 @@
     </RadioGroup>
 
     <ImageView
-        android:layout_width="449dp"
-        android:layout_height="272dp"
+        android:layout_width="478dp"
+        android:layout_height="240dp"
         android:layout_marginTop="64dp"
         android:contentDescription="@string/mapa_de_marte"
         android:src="@drawable/mapa_de_marte"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.943"
+        app:layout_constraintHorizontal_bias="0.936"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
