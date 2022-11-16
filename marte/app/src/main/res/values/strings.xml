@@ -4,5 +4,6 @@
     <string name="para">Para</string>
     <string name="buscar">Buscar</string>
     <string name="dijkstra">Dijkstra</string>
-    <string name="recursao">Recursão</string>
+    <string name="recursivo">Recursivo</string>
+    <string name="mapa_de_marte">Mapa de Marte</string>
 </resources>

@@ -6,25 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/de"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <ListView
+        android:id="@+id/list_view_caminhos"
+        android:layout_width="221dp"
+        android:layout_height="217dp"
+        android:layout_marginTop="180dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.054"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.089"
-        android:textSize="16sp" />
-
-    <Spinner
-        android:id="@+id/spinner_origem"
-        android:layout_width="172dp"
-        android:layout_height="39dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.184"
+        app:layout_constraintHorizontal_bias="0.025"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -32,70 +20,97 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/para"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.055"
+        app:layout_constraintHorizontal_bias="0.017"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.21"
-        android:textSize="16sp" />
+        app:layout_constraintVertical_bias="0.172" />
 
     <Spinner
         android:id="@+id/spinner_destino"
         android:layout_width="172dp"
         android:layout_height="39dp"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="56dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.184"
+        app:layout_constraintHorizontal_bias="0.137"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinner_origem"
+        android:layout_width="172dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.137"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/de"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.019"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.071" />
+
+    <Button
+        android:id="@+id/button_buscar"
+        android:layout_width="83dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="112dp"
+        android:text="@string/buscar"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.236"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <RadioGroup
-        android:layout_width="91dp"
-        android:layout_height="68dp"
-        android:layout_marginTop="120dp"
+        android:layout_width="106dp"
+        android:layout_height="66dp"
+        android:layout_marginTop="104dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        app:layout_constraintHorizontal_bias="0.023"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
             android:id="@+id/radio_button_recursivo"
-            android:layout_width="wrap_content"
+            android:layout_width="105dp"
             android:layout_height="wrap_content"
+            android:checked="true"
             android:onClick="onAlgoritmoSelecionado"
-            android:text="@string/recursao"
-            android:checked="true" />
+            android:text="@string/recursivo"
+            tools:layout_editor_absoluteX="14dp"
+            tools:layout_editor_absoluteY="113dp" />
 
         <RadioButton
             android:id="@+id/radio_button_dijkstra"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onAlgoritmoSelecionado"
-            android:text="@string/dijkstra" />
+            android:text="@string/dijkstra"
+            tools:layout_editor_absoluteX="14dp"
+            tools:layout_editor_absoluteY="145dp" />
 
     </RadioGroup>
 
-    <Button
-        android:id="@+id/button_buscar"
-        android:layout_width="83dp"
-        android:layout_height="42dp"
-        android:layout_marginTop="136dp"
-        android:text="@string/buscar"
-        android:textAllCaps="false"
+    <ImageView
+        android:layout_width="449dp"
+        android:layout_height="272dp"
+        android:layout_marginTop="64dp"
+        android:contentDescription="@string/mapa_de_marte"
+        android:src="@drawable/mapa_de_marte"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.268"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ListView
-        android:id="@+id/list_view_caminhos"
-        android:layout_width="219dp"
-        android:layout_height="187dp"
-        android:layout_marginTop="196dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.074"
+        app:layout_constraintHorizontal_bias="0.943"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
