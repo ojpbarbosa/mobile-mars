@@ -18,6 +18,7 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     lateinit var algoritmoSelecionado: Algoritmo
+    lateinit var cidades: Array<Cidade>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         // leitura e conversão do arquivo JSON de cidades
         // em um array de objetos da classe Cidade
-        val cidades: Array<Cidade> = Gson()
+        cidades = Gson()
             .fromJson(lerArquivo("CidadesMarte.json"), object : TypeToken<Array<Cidade>>() {}.type)
 
         desenharCidades(cidades)
@@ -41,7 +42,6 @@ class MainActivity : AppCompatActivity() {
             )
         val origemSpinner: Spinner = findViewById(R.id.spinner_origem)
         origemSpinner.adapter = origemSpinnerAdapter
-        origemSpinner.setSelection(0)
 
         // atribuição do adaptador do spinner das cidades de destino
         // como um ArrayAdapter de string que assume como valor os
@@ -61,27 +61,26 @@ class MainActivity : AppCompatActivity() {
         val caminhos: Array<Caminho> = Gson()
             .fromJson(lerArquivo("CaminhoEntreCidadesMarte.json"), object : TypeToken<Array<Caminho>>() {}.type)
 
-        // geração da matriz de adjacências
-        val adjacencias = Array(cidades.size) { IntArray(cidades.size) }
-        caminhos.forEach { caminho ->
+        // instanciação da matriz de adjacências
+        val adjacencias: Array<Array<DadosCaminho?>> = Array(caminhos.size) { arrayOfNulls(caminhos.size) }
+        caminhos.forEach {
+            // desenha-se o caminho na image view
+            desenharCaminho(it)
+
             // para cada caminho, obtém-se o índice
-            // da cidade de origem e destino
-            val indiceOrigem = cidades.indexOf(cidades.find { cidade ->
-                cidade.nome == caminho.cidadeOrigem
-            })
-            val indiceDestino = cidades.indexOf(cidades.find { cidade ->
-                cidade.nome == caminho.cidadeDestino
-            })
+            // da cidade de origem e destino através
+            // de uma pesquisa binária
+            val indiceOrigem = obterIndiceCidade(it.cidadeOrigem!!)
+            val indiceDestino = obterIndiceCidade(it.cidadeDestino!!)
 
-            desenharCaminho(caminho)
-
-            // e atribui-se à matriz a distância
-            // correspondente entre as cidades
-            adjacencias[indiceOrigem][indiceDestino] = caminho.distancia!!
+            // e atribui-se à matriz os dados
+            // correspondentes do caminho
+            adjacencias[indiceOrigem][indiceDestino] =
+                DadosCaminho(it.distancia!!, it.tempo!!, it.custo!!)
         }
     }
 
-    fun lerArquivo(arquivo: String): String {
+    private fun lerArquivo(arquivo: String): String {
         lateinit var conteudo: String
 
         try {
@@ -97,6 +96,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         return conteudo
+    }
+
+    private fun obterIndiceCidade(cidade: String): Int {
+        // busca binária pela cidade
+        fun buscarCidade(inicio: Int, fim: Int): Int {
+            if (fim >= inicio) {
+                val meio = (inicio + fim) / 2
+
+                if (cidades[meio].nome.equals(cidade))
+                    return meio
+
+                if (cidades[meio].nome!! > cidade)
+                    return buscarCidade(inicio, meio - 1)
+
+                return buscarCidade(meio + 1, fim)
+            }
+
+            return -1
+        }
+
+        return buscarCidade(0, cidades.size)
     }
 
     fun onAlgoritmoSelecionado(view: View) {
@@ -121,23 +141,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun desenharCidades(cidades: Array<Cidade>) {
-        val mapaImageView: ImageView = findViewById(R.id.image_view_mapa)
-
-        val bitmap = Bitmap.createBitmap(478, 240, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        val paint = Paint()
-        paint.color = Color.BLUE
-        paint.textSize = 48 * resources.displayMetrics.density
-
-        canvas.drawText("Teste",
-            (478 / 2).toFloat(), (240 / 2).toFloat(), paint)
-
-        mapaImageView.setImageBitmap(bitmap)
+    private fun desenharCidades(cidades: Array<Cidade>) {
+//        val mapaImageView: ImageView = findViewById(R.id.image_view_mapa)
+//
+//        val bitmap = Bitmap.createBitmap(478, 240, Bitmap.Config.ARGB_8888)
+//        val canvas = Canvas(bitmap)
+//
+//        val paint = Paint()
+//        paint.color = Color.BLUE
+//        paint.textSize = 48 * resources.displayMetrics.density
+//
+//        canvas.drawText("Teste",
+//            (478 / 2).toFloat(), (240 / 2).toFloat(), paint)
+//
+//        mapaImageView.setImageBitmap(bitmap)
     }
 
-    fun desenharCaminho(caminho: Caminho) {
+    private fun desenharCaminho(caminho: Caminho) {
 
     }
 }
