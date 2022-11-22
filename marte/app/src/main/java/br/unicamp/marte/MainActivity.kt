@@ -4,10 +4,12 @@
 package br.unicamp.marte
 
 import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Spinner
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         cidades = Gson()
             .fromJson(lerArquivo("CidadesMarte.json"), object : TypeToken<Array<Cidade>>() {}.type)
 
-        desenharCidades(cidades)
+        desenharCidades()
 
         // atribuição do adaptador do spinner das cidades de origem
         // como um ArrayAdapter de string que assume como valor os
@@ -78,6 +80,17 @@ class MainActivity : AppCompatActivity() {
             adjacencias[indiceOrigem][indiceDestino] =
                 DadosCaminho(it.distancia!!, it.tempo!!, it.custo!!)
         }
+
+        val buscarButton: Button = findViewById(R.id.button_buscar)
+
+        // quando o botão de buscar for clicado,
+        // achamos o caminho de acordo com o algoritmo selecionado
+        buscarButton.setOnClickListener {
+            when (algoritmoSelecionado) {
+                Algoritmo.Recursivo -> acharCaminhoComRecursao(adjacencias)
+                Algoritmo.Dijkstra -> acharCaminhoComDijkstra(adjacencias)
+            }
+        }
     }
 
     private fun lerArquivo(arquivo: String): String {
@@ -119,6 +132,10 @@ class MainActivity : AppCompatActivity() {
         return buscarCidade(0, cidades.size)
     }
 
+    fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>) {}
+
+    fun acharCaminhoComRecursao(adjacencias: Array<Array<DadosCaminho?>>) {}
+
     fun onAlgoritmoSelecionado(view: View) {
         if (view is RadioButton) {
             val viewSelecionada = view.isChecked
@@ -141,20 +158,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun desenharCidades(cidades: Array<Cidade>) {
-//        val mapaImageView: ImageView = findViewById(R.id.image_view_mapa)
-//
-//        val bitmap = Bitmap.createBitmap(478, 240, Bitmap.Config.ARGB_8888)
-//        val canvas = Canvas(bitmap)
-//
-//        val paint = Paint()
-//        paint.color = Color.BLUE
-//        paint.textSize = 48 * resources.displayMetrics.density
-//
-//        canvas.drawText("Teste",
-//            (478 / 2).toFloat(), (240 / 2).toFloat(), paint)
-//
-//        mapaImageView.setImageBitmap(bitmap)
+    private fun desenharCidades() {
+        val mapaImageView: ImageView = findViewById(R.id.image_view_mapa)
+
+        val mapa = BitmapFactory.decodeResource(resources, R.drawable.mapa_de_marte)
+        val bitmap = Bitmap.createBitmap(mapa.width, mapa.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val paint = Paint()
+        paint.color = Color.BLUE
+        paint.textSize = 24 * resources.displayMetrics.density
+
+        canvas.drawBitmap(mapa, 0f, 0f, null)
+
+        cidades.forEach {
+            it.nome?.let { nome ->
+                it.x?.times(mapa.width)?.let { x ->
+                    it.y?.times(mapa.height)?.let { y ->
+                        canvas.drawText(
+                            nome,
+                            x.times(mapa.width).toFloat(),
+                            y.times(mapa.height).toFloat(),
+                            paint
+                        )
+                    }
+                }
+            }
+        }
+
+        mapaImageView.setImageDrawable(BitmapDrawable(resources, bitmap))
     }
 
     private fun desenharCaminho(caminho: Caminho) {
