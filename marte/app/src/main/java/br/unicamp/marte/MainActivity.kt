@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
                 object : TypeToken<Array<Cidade>>() {}.type
             )
 
-        // desenha as cidades no image view
+        // desenha as cidades na view
         desenharCidades()
 
         // atribuição do adaptador do spinner das cidades de origem
@@ -263,7 +263,7 @@ class MainActivity : AppCompatActivity() {
             paint
         )
 
-        // define o bitmap do image view como o novo bitmap com o caminho
+        // define o bitmap da view como o novo bitmap com o caminho
         findViewById<ImageView>(R.id.image_view_mapa).setImageBitmap(novoMapa)
     }
 }
