@@ -4,16 +4,11 @@
 package br.unicamp.marte
 
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
+import androidx.core.graphics.drawable.toBitmap
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
@@ -29,8 +24,12 @@ class MainActivity : AppCompatActivity() {
         // leitura e conversão do arquivo JSON de cidades
         // em um array de objetos da classe Cidade
         cidades = Gson()
-            .fromJson(lerArquivo("CidadesMarte.json"), object : TypeToken<Array<Cidade>>() {}.type)
+            .fromJson(
+                lerArquivo("CidadesMarte.json"),
+                object : TypeToken<Array<Cidade>>() {}.type
+            )
 
+        // desenha as cidades no image view
         desenharCidades()
 
         // atribuição do adaptador do spinner das cidades de origem
@@ -61,36 +60,39 @@ class MainActivity : AppCompatActivity() {
         // leitura e conversão do arquivo JSON de caminhos
         // em um array de objetos da classe Caminho
         val caminhos: Array<Caminho> = Gson()
-            .fromJson(lerArquivo("CaminhoEntreCidadesMarte.json"), object : TypeToken<Array<Caminho>>() {}.type)
+            .fromJson(
+                lerArquivo("CaminhoEntreCidadesMarte.json"),
+                object : TypeToken<Array<Caminho>>() {}.type
+            )
 
         // instanciação da matriz de adjacências
         val adjacencias: Array<Array<DadosCaminho?>> = Array(caminhos.size) { arrayOfNulls(caminhos.size) }
         caminhos.forEach {
-            // desenha-se o caminho na image view
-            desenharCaminho(it)
-
             // para cada caminho, obtém-se o índice
             // da cidade de origem e destino através
             // de uma pesquisa binária
             val indiceOrigem = obterIndiceCidade(it.cidadeOrigem!!)
             val indiceDestino = obterIndiceCidade(it.cidadeDestino!!)
 
+            // desenha-se o caminho na image view
+            desenharCaminho(cidades[indiceOrigem], cidades[indiceDestino], it.distancia!!)
+
             // e atribui-se à matriz os dados
             // correspondentes do caminho
             adjacencias[indiceOrigem][indiceDestino] =
-                DadosCaminho(it.distancia!!, it.tempo!!, it.custo!!)
+                DadosCaminho(it.distancia, it.tempo!!, it.custo!!)
         }
 
-        val buscarButton: Button = findViewById(R.id.button_buscar)
+//        val buscarButton: Button = findViewById(R.id.button_buscar)
 
         // quando o botão de buscar for clicado,
         // achamos o caminho de acordo com o algoritmo selecionado
-        buscarButton.setOnClickListener {
-            when (algoritmoSelecionado) {
-                Algoritmo.Recursivo ->
-                Algoritmo.Dijkstra ->
-            }
-        }
+//        buscarButton.setOnClickListener {
+//            when (algoritmoSelecionado) {
+//                Algoritmo.Recursivo ->
+//                Algoritmo.Dijkstra ->
+//            }
+//        }
     }
 
     private fun lerArquivo(arquivo: String): String {
@@ -112,35 +114,48 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun obterIndiceCidade(cidade: String): Int {
-        // busca binária pela cidade
+        // pesquisa binária pela cidade
+        // método recursivo que assume como parâmetros
+        // os índices que delimitam o intervalo de busca
+        // no vetor
         fun buscarCidade(inicio: Int, fim: Int): Int {
             if (fim >= inicio) {
+                // calcula o meio do intervalo procurado
                 val meio = (inicio + fim) / 2
 
+                // se a cidade se encontra na posição
+                // respectiva ao meio do intervalo procurado
                 if (cidades[meio].nome.equals(cidade))
-                    return meio
+                    return meio // o índice é retornado
 
+                // se a cidade se encontra após o meio
                 if (cidades[meio].nome!! > cidade)
+                // é feita uma nova pesquisa binária
+                // na segunda metade do intervalo
                     return buscarCidade(inicio, meio - 1)
 
+                // se a cidade se encontra antes do meio,
+                // é feita uma nova pesquisa binária
+                // na primeira metade do intervalo
                 return buscarCidade(meio + 1, fim)
             }
 
+            // se a cidade não foi encontrada,
+            // não há índice, portanto, retorna-se -1
             return -1
         }
 
+        // inicia-se a busca pela cidade com os
+        // índices pertencentes ao intervalo
+        // entre 0 e a quantidade de cidades
         return buscarCidade(0, cidades.size)
     }
-
-
-
-    fun acharCaminhoComRecursao(adjacencias: Array<Array<DadosCaminho?>>) {}
 
     fun onAlgoritmoSelecionado(view: View) {
         if (view is RadioButton) {
             val viewSelecionada = view.isChecked
 
-            // obtém o id da view e verifica
+            // obtém-se o id da view e verifica
             // se a mesma foi selecionada
             when (view.getId()) {
                 R.id.radio_button_recursivo ->
@@ -158,38 +173,97 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>) {}
+
+    fun acharCaminhoComRecursao(adjacencias: Array<Array<DadosCaminho?>>) {}
+
     private fun desenharCidades() {
-        val mapaImageView: ImageView = findViewById(R.id.image_view_mapa)
+        // converte o arquivo do mapa para bitmap
+        val mapaSemCidades = BitmapFactory.decodeResource(resources, R.drawable.mapa_de_marte)
+        // cria um bitmap novo a partir do bitmap do mapa
+        val mapaComCidades = Bitmap
+            .createBitmap(mapaSemCidades.width, mapaSemCidades.height, Bitmap.Config.ARGB_8888)
+        // cria um canvas com o mapa com cidades
+        val canvas = Canvas(mapaComCidades)
 
-        val mapa = BitmapFactory.decodeResource(resources, R.drawable.mapa_de_marte)
-        val bitmap = Bitmap.createBitmap(mapa.width, mapa.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
+        // instanciação da classe Paint
+        // e definição da cor e tamanho do texto
         val paint = Paint()
-        paint.color = Color.BLUE
-        paint.textSize = 24 * resources.displayMetrics.density
+        paint.color = Color.BLACK
+        paint.textSize = resources.displayMetrics.density.times(18)
 
-        canvas.drawBitmap(mapa, 0f, 0f, null)
+        // desenha o bitmap do mapa no canvas
+        canvas.drawBitmap(mapaSemCidades, 0f, 0f, null)
 
         cidades.forEach {
-            it.nome?.let { nome ->
-                it.x?.times(mapa.width)?.let { x ->
-                    it.y?.times(mapa.height)?.let { y ->
-                        canvas.drawText(
-                            nome,
-                            x.times(mapa.width).toFloat(),
-                            y.times(mapa.height).toFloat(),
-                            paint
-                        )
-                    }
-                }
-            }
+            // para cada cidade no array de cidades,
+            // calcula-se as coordenadas (x, y) respectivas
+            // à cidade ao multiplicar as coordenadas relativas
+            // (x, y) da cidade pela largura e altura do bitmap do mapa
+            val x = it.x!!.times(mapaSemCidades.width).toFloat()
+            val y = it.y!!.times(mapaSemCidades.height).toFloat()
+
+            // desenha o nome da cidade
+            // deslocado das coordenadas da cidade
+            canvas.drawText(
+                it.nome!!,
+                x.minus(it.nome.length * 12),
+                y.minus(18),
+                paint
+            )
+            // desenha um círculo nas coordenadas da cidade
+            canvas.drawCircle(x, y, 12f, paint)
         }
 
-        mapaImageView.setImageDrawable(BitmapDrawable(resources, bitmap))
+        // define o bitmap da image view do mapa como o novo bitmap com as cidades
+        findViewById<ImageView>(R.id.image_view_mapa).setImageBitmap(mapaComCidades)
     }
 
-    private fun desenharCaminho(caminho: Caminho) {
+    private fun desenharCaminho(cidadeOrigem: Cidade, cidadeDestino: Cidade, distancia: Int) {
+        // converte o drawable exibido na image view com os últimos caminhos para bitmap
+        val antigoMapa = findViewById<ImageView>(R.id.image_view_mapa).drawable.toBitmap()
+        // cria um bitmap novo a partir do bitmap do mapa exibido
+        val novoMapa = Bitmap
+            .createBitmap(antigoMapa.width, antigoMapa.height, Bitmap.Config.ARGB_8888)
+        // cria um canvas com o novo mapa com o caminho
+        val canvas = Canvas(novoMapa)
 
+        // instanciação da classe Paint
+        // e definição da cor e tamanho do texto e
+        // largura da linha
+        val paint = Paint()
+        paint.color = Color.BLACK
+        paint.textSize = resources.displayMetrics.density.times(16)
+        paint.strokeWidth = resources.displayMetrics.density
+            .times(1.2).toFloat()
+
+        // desenha o bitmap do mapa exibido no canvas
+        canvas.drawBitmap(antigoMapa, 0f, 0f, null)
+
+        // calcula-se as coordenadas (x, y) respectivas
+        // às cidades de origem e destino ao multiplicar
+        // as coordenadas relativas (x, y) de cada cidade
+        // pela largura e altura do bitmap do mapa exibido
+        val xOrigem = cidadeOrigem.x!!
+            .times(antigoMapa.width).toFloat()
+        val yOrigem = cidadeOrigem.y!!
+            .times(antigoMapa.height).toFloat()
+        val xDestino = cidadeDestino.x!!
+            .times(antigoMapa.width).toFloat()
+        val yDestino = cidadeDestino.y!!
+            .times(antigoMapa.height).toFloat()
+
+        // desenha a linha entre a cidade de origem e a cidade de destino
+        canvas.drawLine(xOrigem, yOrigem, xDestino, yDestino, paint)
+        // desenha a distância do caminho deslocado da linha
+        canvas.drawText(
+            distancia.toString(),
+            ((xOrigem + xDestino) / 2).minus(72),
+            ((yOrigem + yDestino) / 2).minus(16),
+            paint
+        )
+
+        // define o bitmap do image view como o novo bitmap com o caminho
+        findViewById<ImageView>(R.id.image_view_mapa).setImageBitmap(novoMapa)
     }
 }
