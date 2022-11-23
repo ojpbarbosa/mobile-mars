@@ -87,8 +87,8 @@ class MainActivity : AppCompatActivity() {
         // achamos o caminho de acordo com o algoritmo selecionado
         buscarButton.setOnClickListener {
             when (algoritmoSelecionado) {
-                Algoritmo.Recursivo -> acharCaminhoComRecursao(adjacencias)
-                Algoritmo.Dijkstra -> acharCaminhoComDijkstra(adjacencias)
+                Algoritmo.Recursivo ->
+                Algoritmo.Dijkstra ->
             }
         }
     }
@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
         return buscarCidade(0, cidades.size)
     }
 
-    fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>) {}
+
 
     fun acharCaminhoComRecursao(adjacencias: Array<Array<DadosCaminho?>>) {}
 
