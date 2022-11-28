@@ -83,16 +83,18 @@ class MainActivity : AppCompatActivity() {
                 DadosCaminho(it.distancia, it.tempo!!, it.custo!!)
         }
 
-//        val buscarButton: Button = findViewById(R.id.button_buscar)
+        val buscarButton: Button = findViewById(R.id.button_buscar)
 
         // quando o botão de buscar for clicado,
         // achamos o caminho de acordo com o algoritmo selecionado
-//        buscarButton.setOnClickListener {
-//            when (algoritmoSelecionado) {
-//                Algoritmo.Recursivo ->
-//                Algoritmo.Dijkstra ->
-//            }
-//        }
+        buscarButton.setOnClickListener {
+            when (algoritmoSelecionado) {
+                Algoritmo.Recursivo -> {
+                    acharCaminhosComRecursao(adjacencias, origemSpinner.selectedItemPosition, destinoSpinner.selectedItemPosition)
+                }
+                Algoritmo.Dijkstra -> 
+            }
+        }
     }
 
     private fun lerArquivo(arquivo: String): String {
@@ -175,7 +177,33 @@ class MainActivity : AppCompatActivity() {
 
     fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>) {}
 
-    fun acharCaminhoComRecursao(adjacencias: Array<Array<DadosCaminho?>>) {}
+    fun acharCaminhosComRecursao(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: String, cidadeDestino: String): Array<Array<Caminho>> {
+        var caminhos = Array(adjacencias.size) { arrayOfNulls(adjacencias.size) }
+        // var visitados = BooleanArray(adjacencias.size)
+
+        fun executar(x: Int, y: Int, caminho: Array<Caminho>) {
+            if (x == obterIndiceCidade(cidadeDestino)) {
+                caminhos.add(caminho)
+                caminho = Array(adjacencias.size) { }
+            }
+            else {
+                for (i in 0 until adjacencias.size) {
+                    if (adjacencias[x][i] != null) {
+                        if (visitados[x][i] == false) {
+                            visitados[x][i] = true
+                            caminho.add(Caminho(cidade[x].nome!!, cidades[i].nome!!, adjacencias[x][i]!!.distancia, adjacencias[x][i]!!.tempo, adjacencias[x][i]!!.custo))
+                            executar(i, y, caminho)
+                            visitados[x][i] = false
+                        }
+                    }
+                }
+            }
+        }
+
+        executar(obterIndiceCidade(cidadeOrigem), 0, Array(adjacencias.size) { })
+
+        return caminhos
+    }
 
     private fun desenharCidades() {
         // converte o arquivo do mapa para bitmap
