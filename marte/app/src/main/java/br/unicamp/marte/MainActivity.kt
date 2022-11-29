@@ -92,7 +92,9 @@ class MainActivity : AppCompatActivity() {
                 Algoritmo.Recursivo -> {
                     acharCaminhosComRecursao(adjacencias, origemSpinner.selectedItemPosition, destinoSpinner.selectedItemPosition)
                 }
-                Algoritmo.Dijkstra -> 
+                Algoritmo.Dijkstra -> {
+                    acharCaminhoComDijkstra(adjacencias, origemSpinner.selectedItemPosition, destinoSpinner.selectedItemPosition)
+                }
             }
         }
     }
@@ -175,23 +177,78 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>) {}
+//    Algoritmo de Dijkstra --------------------------------------
 
-    fun acharCaminhosComRecursao(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: String, cidadeDestino: String): Array<Array<Caminho>> {
-        var caminhos = Array(adjacencias.size) { arrayOfNulls(adjacencias.size) }
-        // var visitados = BooleanArray(adjacencias.size)
+    fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: Int, cidadadeDestino: Int) {
+        val pesos = mutableMapOf<Pair<Int, Int>, Int>()
 
-        fun executar(x: Int, y: Int, caminho: Array<Caminho>) {
-            if (x == obterIndiceCidade(cidadeDestino)) {
+        for (i in adjacencias.indices) {
+            for (j in adjacencias.indices) {
+                pesos.put(Pair(i, j), adjacencias[i][j]!!.distancia)
+            }
+        }
+
+        val menorCaminho = dijkstra(Grafo(pesos), cidadeOrigem);
+    }
+
+    fun <T> dijkstra (adjacencias: Grafo<T>, inicio: T): Map<T, T?> {
+        val s: MutableSet<T> = mutableSetOf()
+
+        val delta = adjacencias.vertices.map { it to Int.MAX_VALUE }.toMap().toMutableMap()
+
+        // A distância do vértice fonte dele mesmo é sempre 0
+        delta[inicio] = 0
+
+        val anterior: MutableMap<T, T?> = adjacencias.vertices.map { it to null }.toMap().toMutableMap()
+
+        while (s != adjacencias.vertices) {
+            val v: T = delta
+                .filter { !s.contains(it.key) }
+                .minBy { it.value }!!
+                .key
+
+            adjacencias.arestas.getValue(v).minus(s).forEach { vizinho ->
+                val novoCaminho = delta.getValue(v) + adjacencias.pesos.getValue(Pair(v, vizinho))
+
+                if (novoCaminho < delta.getValue(vizinho)) {
+                    delta[vizinho] = novoCaminho
+                    anterior[vizinho] = v
+                }
+            }
+
+            s.add(v);
+        }
+
+        return anterior.toMap()
+    }
+
+    fun <T> menorCaminho(arvoreMenorCaminho: Map<T, T?>, inicio: T, fim: T): List<T> {
+        fun caminhoPara(inicio: T, fim: T): List<T> {
+            if (arvoreMenorCaminho[fim] == null) return listOf(fim)
+            return listOf(caminhoPara(inicio, arvoreMenorCaminho[fim]!!), listOf(fim)).flatten()
+        }
+
+        return caminhoPara(inicio, fim)
+    }
+
+//    Algoritmo de Recursão --------------------------------------
+
+    fun acharCaminhosComRecursao(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: Int, cidadeDestino: Int): ArrayList<ArrayList<Caminho?>> {
+        var caminhos = ArrayList<ArrayList<Caminho?>>()
+        var visitados = Array(adjacencias.size) { BooleanArray(adjacencias.size) { false } }
+
+
+        fun executar(x: Int, y: Int, caminho: ArrayList<Caminho?>) {
+            if (x == cidadeDestino) {
                 caminhos.add(caminho)
-                caminho = Array(adjacencias.size) { }
+                caminho.clear()
             }
             else {
-                for (i in 0 until adjacencias.size) {
+                for (i in adjacencias.indices) {
                     if (adjacencias[x][i] != null) {
-                        if (visitados[x][i] == false) {
+                        if (!visitados[x][i]) {
                             visitados[x][i] = true
-                            caminho.add(Caminho(cidade[x].nome!!, cidades[i].nome!!, adjacencias[x][i]!!.distancia, adjacencias[x][i]!!.tempo, adjacencias[x][i]!!.custo))
+                            caminho.add(Caminho(cidades[x].nome!!, cidades[i].nome!!, adjacencias[x][i]!!.distancia, adjacencias[x][i]!!.tempo, adjacencias[x][i]!!.custo))
                             executar(i, y, caminho)
                             visitados[x][i] = false
                         }
@@ -200,7 +257,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        executar(obterIndiceCidade(cidadeOrigem), 0, Array(adjacencias.size) { })
+        executar(cidadeOrigem, 0, ArrayList())
 
         return caminhos
     }
