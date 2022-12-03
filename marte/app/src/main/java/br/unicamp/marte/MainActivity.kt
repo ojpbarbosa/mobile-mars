@@ -241,7 +241,6 @@ class MainActivity : AppCompatActivity() {
         fun executar(x: Int, y: Int, caminho: ArrayList<Caminho?>) {
             if (x == cidadeDestino) {
                 caminhos.add(caminho)
-                caminho.clear()
             }
             else {
                 for (i in adjacencias.indices) {
@@ -250,6 +249,7 @@ class MainActivity : AppCompatActivity() {
                             visitados[x][i] = true
                             caminho.add(Caminho(cidades[x].nome!!, cidades[i].nome!!, adjacencias[x][i]!!.distancia, adjacencias[x][i]!!.tempo, adjacencias[x][i]!!.custo))
                             executar(i, y, caminho)
+                            caminho.removeLast()
                             visitados[x][i] = false
                         }
                     }
