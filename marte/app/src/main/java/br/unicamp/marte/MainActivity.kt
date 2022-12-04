@@ -177,8 +177,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    Algoritmo de Dijkstra --------------------------------------
-
+    // algoritmo de Dijkstra --------------------------------------
     fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: Int, cidadadeDestino: Int) {
         val pesos = mutableMapOf<Pair<Int, Int>, Int>()
 
@@ -191,12 +190,12 @@ class MainActivity : AppCompatActivity() {
         val menorCaminho = dijkstra(Grafo(pesos), cidadeOrigem);
     }
 
-    fun <T> dijkstra (adjacencias: Grafo<T>, inicio: T): Map<T, T?> {
+    fun dijkstra (adjacencias: Grafo<T>, inicio: T): Map<T, T?> {
         val s: MutableSet<T> = mutableSetOf()
 
         val delta = adjacencias.vertices.map { it to Int.MAX_VALUE }.toMap().toMutableMap()
 
-        // A distância do vértice fonte dele mesmo é sempre 0
+        // a distância do vértice fonte dele mesmo é sempre 0
         delta[inicio] = 0
 
         val anterior: MutableMap<T, T?> = adjacencias.vertices.map { it to null }.toMap().toMutableMap()
@@ -222,7 +221,7 @@ class MainActivity : AppCompatActivity() {
         return anterior.toMap()
     }
 
-    fun <T> menorCaminho(arvoreMenorCaminho: Map<T, T?>, inicio: T, fim: T): List<T> {
+    fun menorCaminho(arvoreMenorCaminho: Map<T, T?>, inicio: T, fim: T): List<T> {
         fun caminhoPara(inicio: T, fim: T): List<T> {
             if (arvoreMenorCaminho[fim] == null) return listOf(fim)
             return listOf(caminhoPara(inicio, arvoreMenorCaminho[fim]!!), listOf(fim)).flatten()
@@ -231,8 +230,7 @@ class MainActivity : AppCompatActivity() {
         return caminhoPara(inicio, fim)
     }
 
-//    Algoritmo de Recursão --------------------------------------
-
+    // algoritmo de recursão com backtracking --------------------------------------
     fun acharCaminhosComRecursao(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: Int, cidadeDestino: Int): ArrayList<ArrayList<Caminho?>> {
         var caminhos = ArrayList<ArrayList<Caminho?>>()
         var visitados = Array(adjacencias.size) { BooleanArray(adjacencias.size) { false } }
@@ -247,7 +245,7 @@ class MainActivity : AppCompatActivity() {
                     if (adjacencias[x][i] != null) {
                         if (!visitados[x][i]) {
                             visitados[x][i] = true
-                            caminho.add(Caminho(cidades[x].nome!!, cidades[i].nome!!, adjacencias[x][i]!!.distancia, adjacencias[x][i]!!.tempo, adjacencias[x][i]!!.custo))
+                            // caminho.add(Caminho(cidades[x].nome!!, cidades[i].nome!!, adjacencias[x][i]!!.distancia, adjacencias[x][i]!!.tempo, adjacencias[x][i]!!.custo))
                             executar(i, y, caminho)
                             caminho.removeLast()
                             visitados[x][i] = false
