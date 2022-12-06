@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var caminhos: Array<Caminho>
 
     lateinit var matrizDeAdjacencias: Array<Array<DadosCaminho>>
-    lateinit var grafo: Grafo
 
     lateinit var caminhosListViewAdapter: ArrayAdapter<String>
     lateinit var caminhoSelecionadoTextView: TextView
@@ -103,26 +102,7 @@ class MainActivity : AppCompatActivity() {
                 object : TypeToken<Array<Caminho>>() {}.type
             )
 
-        // instanciação da matriz de adjacências
-        matrizDeAdjacencias =
-            Array(cidades.size) {
-                Array(cidades.size) {
-                    DadosCaminho(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
-                }
-            }
-
-        caminhos.forEach {
-            // para cada caminho, obtém-se o índice
-            // da cidade de origem e destino através
-            // de uma pesquisa binária
-            val indiceOrigem = obterIndiceCidade(it.cidadeOrigem!!)
-            val indiceDestino = obterIndiceCidade(it.cidadeDestino!!)
-
-            // atribui-se à matriz os dados
-            // correspondentes do caminho
-            matrizDeAdjacencias[indiceOrigem][indiceDestino] =
-                DadosCaminho(it.distancia!!, it.tempo!!, it.custo!!)
-        }
+        instanciarMatrizDeAdjacencias()
 
         // exibe todos os caminhos da matriz de adjacências
         exibirTodosCaminhos()
@@ -173,6 +153,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // método que instancia a matriz de adjacências novamente
+    private fun instanciarMatrizDeAdjacencias() {
+        // instância a matriz de adjacências
+        matrizDeAdjacencias =
+            Array(cidades.size) {
+                Array(cidades.size) {
+                    DadosCaminho(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
+                }
+            }
+
+        caminhos.forEach {
+            // para cada caminho, obtém-se o índice
+            // da cidade de origem e destino através
+            // de uma pesquisa binária
+            val indiceOrigem = obterIndiceCidade(it.cidadeOrigem!!)
+            val indiceDestino = obterIndiceCidade(it.cidadeDestino!!)
+
+            // atribui-se à matriz os dados
+            // correspondentes do caminho
+            matrizDeAdjacencias[indiceOrigem][indiceDestino] =
+                DadosCaminho(it.distancia!!, it.tempo!!, it.custo!!)
+        }
+    }
+
     // redefine, visualmente, a busca,
     // limpando a list view e as text views
     // e exibindo novamente todos os caminhos
@@ -185,6 +189,8 @@ class MainActivity : AppCompatActivity() {
         exibirTodosCaminhos()
     }
 
+    // método para leitura de um arquivo
+    // nos assets do aplicativo
     private fun lerArquivo(arquivo: String): String {
         lateinit var conteudo: String
 
@@ -271,11 +277,20 @@ class MainActivity : AppCompatActivity() {
         cidadeOrigem: Int,
         cidadeDestino: Int
     ) {
-        grafo = Grafo(cidades.size, matrizDeAdjacencias)
+        // zera a matriz de adjacências
+        instanciarMatrizDeAdjacencias()
 
+        // instancia um novo objeto da classe grafo
+        val grafo = Grafo(cidades.size, matrizDeAdjacencias)
+
+        // busca pelo menor caminho através do algoritmo de dijsktra
         val menorCaminho = grafo.acharCaminho(cidadeOrigem, cidadeDestino)
 
-        println(menorCaminho)
+        // limpa a list view
+        // e adiciona o menor caminho retornado na list view
+        caminhosListViewAdapter.clear()
+        caminhosListViewAdapter.add(menorCaminho)
+        caminhosListViewAdapter.notifyDataSetChanged()
     }
 
     // busca recursiva pelos caminhos
@@ -292,6 +307,9 @@ class MainActivity : AppCompatActivity() {
         val movimentos = Stack<Movimento>()
         // array contendo todos os caminhos encontrados, consistindo de pilhas de movimento
         val caminhosEncontrados = ArrayList<Stack<Movimento>>()
+
+        // zera a matriz de adjacências
+        instanciarMatrizDeAdjacencias()
 
         // função recursiva que não assume
         // parâmetros por estar dentro do escopo

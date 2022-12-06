@@ -13,8 +13,10 @@ import java.util.*
 // adjacências já criada
 class Grafo(
     numeroDeVertices: Int,
-    val matrizDeAdjacencias: Array<Array<DadosCaminho>>
+    matrizDeAdjacencias: Array<Array<DadosCaminho>>
 ) {
+    val matrizDeAdjacencias = matrizDeAdjacencias.clone()
+
     val vertices: Array<Vertice?> = arrayOfNulls(numeroDeVertices)
     val percurso: Array<DadosOriginais?> = arrayOfNulls(numeroDeVertices)
 
