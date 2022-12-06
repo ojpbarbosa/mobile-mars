@@ -14,12 +14,12 @@ class Caminho(
     @SerializedName("Tempo") val tempo: Int? = 0,
     @SerializedName("Custo") val custo: Int? = 0
 ) {
-    // método obrigatório toString
+    // implementação do tipo override do método obrigatório toString
     override fun toString(): String {
         return "$cidadeOrigem $cidadeDestino $distancia $tempo $custo"
     }
 
-    // método obrigatório equals
+    // implementação do tipo override do método obrigatório equals
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -35,7 +35,7 @@ class Caminho(
         return true
     }
 
-    // método obrigatório hashCode
+    // implementação do tipo override do método obrigatório hashCode
     override fun hashCode(): Int {
         var result = cidadeOrigem?.hashCode() ?: 0
         result = 31 * result + (cidadeDestino?.hashCode() ?: 0)

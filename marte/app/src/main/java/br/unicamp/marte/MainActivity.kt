@@ -3,19 +3,39 @@
 
 package br.unicamp.marte
 
-import android.graphics.*
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
+import br.unicamp.marte.dijkstra.Grafo
 import android.os.Bundle
-import android.view.View
-import android.widget.*
-import androidx.core.graphics.drawable.toBitmap
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
+import android.graphics.*
+import androidx.core.graphics.drawable.toBitmap
+import java.util.Stack
+import android.view.View
+import android.widget.*
 
 class MainActivity : AppCompatActivity() {
-    lateinit var algoritmoSelecionado: Algoritmo
+    // o algoritmo selecionado por padrão é o recursivo
+    var algoritmoSelecionado = Algoritmo.Recursivo
+
+    // declaração das variáveis globais
+    // relacionadas à interface e busca
     lateinit var cidades: Array<Cidade>
+    lateinit var caminhos: Array<Caminho>
+
+    lateinit var matrizDeAdjacencias: Array<Array<DadosCaminho>>
+    lateinit var grafo: Grafo
+
+    lateinit var caminhosListViewAdapter: ArrayAdapter<String>
+    lateinit var caminhoSelecionadoTextView: TextView
+    lateinit var dadosCaminhoSelecionadoTextView: TextView
+    lateinit var mapaImageView: ImageView
+
+    val caminhosEncontrados = ArrayList<ArrayList<Movimento>>()
+
+    var indiceCaminhoSelecionado = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +49,12 @@ class MainActivity : AppCompatActivity() {
                 object : TypeToken<Array<Cidade>>() {}.type
             )
 
-        // desenha as cidades na view
+        // atribuição das views referentes ao mapa e à interface
+        mapaImageView = findViewById(R.id.image_view_mapa)
+        caminhoSelecionadoTextView = findViewById(R.id.text_view_caminho_selecionado)
+        dadosCaminhoSelecionadoTextView = findViewById(R.id.text_view_dados_caminho_selecionado)
+
+        // desenho das cidades no mapa
         desenharCidades()
 
         // atribuição do adaptador do spinner das cidades de origem
@@ -57,16 +82,35 @@ class MainActivity : AppCompatActivity() {
         destinoSpinner.adapter = destinoSpinnerAdapter
         destinoSpinner.setSelection(1)
 
+        // atribuição do adaptador da list view
+        caminhosListViewAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_1,
+            ArrayList()
+        )
+        val caminhosListView: ListView = findViewById(R.id.list_view_caminhos)
+        caminhosListView.adapter = caminhosListViewAdapter
+        caminhosListView.setOnItemClickListener { _, _, i, _ ->
+            indiceCaminhoSelecionado = i
+            exibirCaminhoSelecionado()
+        }
+
         // leitura e conversão do arquivo JSON de caminhos
         // em um array de objetos da classe Caminho
-        val caminhos: Array<Caminho> = Gson()
+        caminhos = Gson()
             .fromJson(
                 lerArquivo("CaminhoEntreCidadesMarte.json"),
                 object : TypeToken<Array<Caminho>>() {}.type
             )
 
         // instanciação da matriz de adjacências
-        val adjacencias: Array<Array<DadosCaminho?>> = Array(caminhos.size) { arrayOfNulls(caminhos.size) }
+        matrizDeAdjacencias =
+            Array(cidades.size) {
+                Array(cidades.size) {
+                    DadosCaminho(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
+                }
+            }
+
         caminhos.forEach {
             // para cada caminho, obtém-se o índice
             // da cidade de origem e destino através
@@ -74,29 +118,71 @@ class MainActivity : AppCompatActivity() {
             val indiceOrigem = obterIndiceCidade(it.cidadeOrigem!!)
             val indiceDestino = obterIndiceCidade(it.cidadeDestino!!)
 
-            // desenha-se o caminho na image view
-            desenharCaminho(cidades[indiceOrigem], cidades[indiceDestino], it.distancia!!)
-
-            // e atribui-se à matriz os dados
+            // atribui-se à matriz os dados
             // correspondentes do caminho
-            adjacencias[indiceOrigem][indiceDestino] =
-                DadosCaminho(it.distancia, it.tempo!!, it.custo!!)
+            matrizDeAdjacencias[indiceOrigem][indiceDestino] =
+                DadosCaminho(it.distancia!!, it.tempo!!, it.custo!!)
         }
+
+        // exibe todos os caminhos da matriz de adjacências
+        exibirTodosCaminhos()
 
         val buscarButton: Button = findViewById(R.id.button_buscar)
 
         // quando o botão de buscar for clicado,
         // achamos o caminho de acordo com o algoritmo selecionado
         buscarButton.setOnClickListener {
-            when (algoritmoSelecionado) {
-                Algoritmo.Recursivo -> {
-                    acharCaminhosComRecursao(adjacencias, origemSpinner.selectedItemPosition, destinoSpinner.selectedItemPosition)
-                }
-                Algoritmo.Dijkstra -> {
-                    acharCaminhoComDijkstra(adjacencias, origemSpinner.selectedItemPosition, destinoSpinner.selectedItemPosition)
+            // caso o usuário tente buscar um caminho entre a mesma cidade de origem e destino
+            if (origemSpinner.selectedItemPosition == destinoSpinner.selectedItemPosition)
+            {
+                // é exibido um toast
+                Toast.makeText(this, "As cidades de origem e de destino não podem ser as mesmas!", Toast.LENGTH_LONG).show()
+                // as variáveis relacionadas à busca são redefinidas
+                redefinirBusca()
+            }
+
+            else
+            {
+                // os índices das cidades de origem e
+                // destino referentes às cidades selecionadas
+                // equivalem à posição das mesmas como itens do spinner
+                val cidadeOrigem = origemSpinner.selectedItemPosition
+                val cidadeDestino = destinoSpinner.selectedItemPosition
+
+                when (algoritmoSelecionado) {
+                    Algoritmo.Recursivo -> {
+                        // se o algoritmo selecionado for
+                        // o recursivo, então o método referente
+                        // a busca recursiva é chamado
+                        acharCaminhosComRecursao(
+                            cidadeOrigem,
+                            cidadeDestino
+                        )
+                    }
+                    Algoritmo.Dijkstra -> {
+                        // se o algoritmo selecionado for
+                        // dijkstra, então o método referente
+                        // a busca recursiva é chamado
+                        acharCaminhoComDijkstra(
+                            cidadeOrigem,
+                            cidadeDestino
+                        )
+                    }
                 }
             }
         }
+    }
+
+    // redefine, visualmente, a busca,
+    // limpando a list view e as text views
+    // e exibindo novamente todos os caminhos
+    @SuppressLint("SetTextI18n")
+    private fun redefinirBusca() {
+        caminhosListViewAdapter.clear()
+        caminhosListViewAdapter.notifyDataSetChanged()
+        caminhoSelecionadoTextView.text = "Caminho selecionado: ---"
+        dadosCaminhoSelecionadoTextView.text = "Dados caminho selecionado: ---"
+        exibirTodosCaminhos()
     }
 
     private fun lerArquivo(arquivo: String): String {
@@ -177,87 +263,104 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // algoritmo de Dijkstra --------------------------------------
-    fun acharCaminhoComDijkstra(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: Int, cidadadeDestino: Int) {
-        val pesos = mutableMapOf<Pair<Int, Int>, Int>()
+    // busca usando dijkstra pelo
+    // menor caminho existente
+    // entre a cidade de origem e a
+    // cidade de destino
+    fun acharCaminhoComDijkstra(
+        cidadeOrigem: Int,
+        cidadeDestino: Int
+    ) {
+        grafo = Grafo(cidades.size, matrizDeAdjacencias)
 
-        for (i in adjacencias.indices) {
-            for (j in adjacencias.indices) {
-                pesos.put(Pair(i, j), adjacencias[i][j]!!.distancia)
-            }
-        }
+        val menorCaminho = grafo.acharCaminho(cidadeOrigem, cidadeDestino)
 
-        val menorCaminho = dijkstra(Grafo(pesos), cidadeOrigem);
+        println(menorCaminho)
     }
 
-    fun dijkstra (adjacencias: Grafo<T>, inicio: T): Map<T, T?> {
-        val s: MutableSet<T> = mutableSetOf()
+    // busca recursiva pelos caminhos
+    // existentes entre a cidade de origem
+    // e a cidade de destino
+    fun acharCaminhosComRecursao(
+        cidadeOrigem: Int,
+        cidadeDestino: Int
+    ) {
+        // variáveis relacionadas à busca
+        // recursiva
+        var cidadeAtual = cidadeOrigem
+        // pilha de movimentos
+        val movimentos = Stack<Movimento>()
+        // array contendo todos os caminhos encontrados, consistindo de pilhas de movimento
+        val caminhosEncontrados = ArrayList<Stack<Movimento>>()
 
-        val delta = adjacencias.vertices.map { it to Int.MAX_VALUE }.toMap().toMutableMap()
+        // função recursiva que não assume
+        // parâmetros por estar dentro do escopo
+        // da função que definiu as variáveis para a busca
+        fun acharCaminho() {
+            // for que percorre a matriz de adjacências, portanto, todas as cidades
+            for (i in matrizDeAdjacencias.indices)
+            {
+                // verificando se há um caminho entre a cidade atual e a cidade i
+                if (matrizDeAdjacencias[cidadeAtual][i].distancia != Int.MAX_VALUE)
+                {
+                    // se houver, é empilhado um novo movimento partindo da cidade
+                    // atual para a cidade i, com os dados referentes da matriz de adjacências
+                    movimentos.push(Movimento(cidadeAtual, i, matrizDeAdjacencias[cidadeAtual][i]))
+                    cidadeAtual = i // define a cidade atual como i para iniciar uma nova
+                                    // busca com parâmetros diferentes
 
-        // a distância do vértice fonte dele mesmo é sempre 0
-        delta[inicio] = 0
-
-        val anterior: MutableMap<T, T?> = adjacencias.vertices.map { it to null }.toMap().toMutableMap()
-
-        while (s != adjacencias.vertices) {
-            val v: T = delta
-                .filter { !s.contains(it.key) }
-                .minBy { it.value }!!
-                .key
-
-            adjacencias.arestas.getValue(v).minus(s).forEach { vizinho ->
-                val novoCaminho = delta.getValue(v) + adjacencias.pesos.getValue(Pair(v, vizinho))
-
-                if (novoCaminho < delta.getValue(vizinho)) {
-                    delta[vizinho] = novoCaminho
-                    anterior[vizinho] = v
-                }
-            }
-
-            s.add(v);
-        }
-
-        return anterior.toMap()
-    }
-
-    fun menorCaminho(arvoreMenorCaminho: Map<T, T?>, inicio: T, fim: T): List<T> {
-        fun caminhoPara(inicio: T, fim: T): List<T> {
-            if (arvoreMenorCaminho[fim] == null) return listOf(fim)
-            return listOf(caminhoPara(inicio, arvoreMenorCaminho[fim]!!), listOf(fim)).flatten()
-        }
-
-        return caminhoPara(inicio, fim)
-    }
-
-    // algoritmo de recursão com backtracking --------------------------------------
-    fun acharCaminhosComRecursao(adjacencias: Array<Array<DadosCaminho?>>, cidadeOrigem: Int, cidadeDestino: Int): ArrayList<ArrayList<Caminho?>> {
-        var caminhos = ArrayList<ArrayList<Caminho?>>()
-        var visitados = Array(adjacencias.size) { BooleanArray(adjacencias.size) { false } }
-
-
-        fun executar(x: Int, y: Int, caminho: ArrayList<Caminho?>) {
-            if (x == cidadeDestino) {
-                caminhos.add(caminho)
-            }
-            else {
-                for (i in adjacencias.indices) {
-                    if (adjacencias[x][i] != null) {
-                        if (!visitados[x][i]) {
-                            visitados[x][i] = true
-                            // caminho.add(Caminho(cidades[x].nome!!, cidades[i].nome!!, adjacencias[x][i]!!.distancia, adjacencias[x][i]!!.tempo, adjacencias[x][i]!!.custo))
-                            executar(i, y, caminho)
-                            caminho.removeLast()
-                            visitados[x][i] = false
-                        }
+                    // se chegamos ao destino, adicionamos a nossa pilha de movimentos
+                    // ao array list de caminhos e desempilhamos nosso último movimento
+                    // - backtracking -, para encontrarmos, dessa forma, todos os caminhos
+                    // possíveis
+                    cidadeAtual = if (cidadeAtual == cidadeDestino) {
+                        caminhosEncontrados.add(movimentos.clone() as Stack<Movimento>)
+                        movimentos.pop().cidadeOrigem
+                    } else {
+                        // caso contrário, é feita uma nova busca com a cidade atual
+                        // valendo i
+                        acharCaminho()
+                        // após isso, é desempilhado um movimento cuja cidade de origem
+                        // é atribuída à cidade atual, iniciando novamente a busca
+                        movimentos.pop().cidadeOrigem
                     }
                 }
             }
         }
 
-        executar(cidadeOrigem, 0, ArrayList())
+        // chamada 0 da função recursiva
+        // para achar os caminhos
+        acharCaminho()
 
-        return caminhos
+        // limpa o array de caminhos encontrados
+        this.caminhosEncontrados.clear()
+        // para cada caminho encontrado na busca recursiva
+        caminhosEncontrados.forEach {
+            // cria-se um vetor de movimentos relativo ao caminho
+            val movimentosCaminho = ArrayList<Movimento>()
+            // desempilhamos a pilha de movimentos no vetor
+            while (!it.empty())
+                movimentosCaminho.add(it.pop())
+
+            // e voltamos os movimentos a sua ordem
+            // original invertendo o vetor
+            movimentosCaminho.reverse()
+
+            // após isso, o vetor com os movimentos
+            // é adicionado ao nosso array de caminhos encontrados
+            this.caminhosEncontrados.add(movimentosCaminho)
+        }
+
+        // se pelo menos um caminho foi encontrado
+        if (caminhosEncontrados.size > 0) {
+            indiceCaminhoSelecionado = 0
+            exibirCaminhosEncontrados()
+        }
+
+        else {
+            Toast.makeText(this, "Nenhum caminho foi encontrado!", Toast.LENGTH_LONG).show()
+            redefinirBusca()
+        }
     }
 
     private fun desenharCidades() {
@@ -273,7 +376,7 @@ class MainActivity : AppCompatActivity() {
         // e definição da cor e tamanho do texto
         val paint = Paint()
         paint.color = Color.BLACK
-        paint.textSize = resources.displayMetrics.density.times(18)
+        paint.textSize = resources.displayMetrics.density.times(24)
 
         // desenha o bitmap do mapa no canvas
         canvas.drawBitmap(mapaSemCidades, 0f, 0f, null)
@@ -295,14 +398,112 @@ class MainActivity : AppCompatActivity() {
                 paint
             )
             // desenha um círculo nas coordenadas da cidade
-            canvas.drawCircle(x, y, 12f, paint)
+            canvas.drawCircle(x, y, 14f, paint)
         }
 
         // define o bitmap da image view do mapa como o novo bitmap com as cidades
-        findViewById<ImageView>(R.id.image_view_mapa).setImageBitmap(mapaComCidades)
+        mapaImageView.setImageBitmap(mapaComCidades)
     }
 
-    private fun desenharCaminho(cidadeOrigem: Cidade, cidadeDestino: Cidade, distancia: Int) {
+    private fun limparMapa() {
+        mapaImageView.setImageBitmap(
+            BitmapFactory.decodeResource(resources, R.drawable.mapa_de_marte)
+        ) // redefine o bitmap da image view do mapa
+          // como o bitmap do arquivo original
+
+        // desenha somente as cidades novamente
+        desenharCidades()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun exibirTodosCaminhos() {
+        limparMapa()
+
+        // para cada caminho
+        caminhos.forEach {
+            // obtém-se os índices de origem e destino e indexa-se
+            // o vetor de cidades para obter, como resultado final,
+            // os objetos referentes às cidades
+            val cidadeOrigem = cidades[obterIndiceCidade(it.cidadeOrigem!!)]
+            val cidadeDestino = cidades[obterIndiceCidade(it.cidadeDestino!!)]
+
+            // desenha o caminho entre as cidades de origem e destino
+            desenharCaminho(cidadeOrigem, cidadeDestino, Color.BLACK)
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun exibirCaminhosEncontrados() {
+        limparMapa()
+
+        caminhoSelecionadoTextView.text = "Caminho selecionado: ---"
+        dadosCaminhoSelecionadoTextView.text = "Dados caminho selecionado: ---"
+
+        // limpa a list view de caminhos
+        caminhosListViewAdapter.clear()
+        // para cada caminho encontrado
+        caminhosEncontrados.forEach {
+            var caminhoString = ""
+            // concatena-se na string do caminho
+            // o nome da cidade de origem de cada movimento
+            for (movimentoCaminho in it)
+                caminhoString += cidades[movimentoCaminho.cidadeOrigem].nome + " > "
+            // e o nome da cidade de destino
+            caminhoString += cidades[it.last().cidadeDestino].nome
+
+            // adiciona a string do caminho na list view
+            caminhosListViewAdapter.add(caminhoString)
+        }
+
+        // atualiza a list view
+        caminhosListViewAdapter.notifyDataSetChanged()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun exibirCaminhoSelecionado() {
+        // se o caminho selecionado for válido
+        if (indiceCaminhoSelecionado != -1) {
+            limparMapa()
+
+            // variáveis referentes
+            // aos dados do caminho selecionado
+            val movimentosCaminho = caminhosEncontrados[indiceCaminhoSelecionado]
+            var distanciaCaminho = 0
+            var tempoCaminho = 0
+            var custoCaminho = 0
+
+            var caminhoString = ""
+            movimentosCaminho.forEach {
+                // obtém a cidade de origem e de destino
+                val cidadeOrigem = cidades[it.cidadeOrigem]
+                val cidadeDestino = cidades[it.cidadeDestino]
+
+                // concatena-se na string do caminho o nome da cidade de origem do movimento
+                caminhoString += cidadeOrigem.nome + " > "
+
+                // soma aos valores previamente
+                // registrados a distância, o tempo
+                // e o custo do movimento
+                val dados = it.dados
+                distanciaCaminho += dados.distancia
+                tempoCaminho += dados.tempo
+                custoCaminho += dados.custo
+
+                // desenha o caminho entre a cidade de origem e de destino
+                desenharCaminho(cidadeOrigem, cidadeDestino, Color.RED)
+            }
+
+            // concatena-se na string do caminho o nome da cidade de destino
+            caminhoString += cidades[movimentosCaminho.last().cidadeDestino].nome
+            // atribui à text view a string do caminho
+            caminhoSelecionadoTextView.text = caminhoString
+            // e à text view dos dados seus respectivos valores
+            dadosCaminhoSelecionadoTextView.text =
+                "Distância: $distanciaCaminho\t\tTempo: $tempoCaminho\t\tCusto: $custoCaminho"
+        }
+    }
+
+    private fun desenharCaminho(cidadeOrigem: Cidade, cidadeDestino: Cidade, cor: Int) {
         // converte o drawable exibido na image view com os últimos caminhos para bitmap
         val antigoMapa = findViewById<ImageView>(R.id.image_view_mapa).drawable.toBitmap()
         // cria um bitmap novo a partir do bitmap do mapa exibido
@@ -315,10 +516,9 @@ class MainActivity : AppCompatActivity() {
         // e definição da cor e tamanho do texto e
         // largura da linha
         val paint = Paint()
-        paint.color = Color.BLACK
-        paint.textSize = resources.displayMetrics.density.times(16)
+        paint.color = cor
         paint.strokeWidth = resources.displayMetrics.density
-            .times(1.2).toFloat()
+            .times(2)
 
         // desenha o bitmap do mapa exibido no canvas
         canvas.drawBitmap(antigoMapa, 0f, 0f, null)
@@ -338,15 +538,8 @@ class MainActivity : AppCompatActivity() {
 
         // desenha a linha entre a cidade de origem e a cidade de destino
         canvas.drawLine(xOrigem, yOrigem, xDestino, yDestino, paint)
-        // desenha a distância do caminho deslocado da linha
-        canvas.drawText(
-            distancia.toString(),
-            ((xOrigem + xDestino) / 2).minus(72),
-            ((yOrigem + yDestino) / 2).minus(16),
-            paint
-        )
 
         // define o bitmap da view como o novo bitmap com o caminho
-        findViewById<ImageView>(R.id.image_view_mapa).setImageBitmap(novoMapa)
+        mapaImageView.setImageBitmap(novoMapa)
     }
 }

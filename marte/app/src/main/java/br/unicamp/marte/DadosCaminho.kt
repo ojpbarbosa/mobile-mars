@@ -1,7 +1,10 @@
 package br.unicamp.marte
 
+// classe de dados relativa
+// ao caminho, sem as
+// cidades de origem e destino
 data class DadosCaminho(
-    val distancia: Int,
+    var distancia: Int,
     val tempo: Int,
     val custo: Int
 )
