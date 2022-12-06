@@ -91,7 +91,9 @@ class MainActivity : AppCompatActivity() {
         caminhosListView.adapter = caminhosListViewAdapter
         caminhosListView.setOnItemClickListener { _, _, i, _ ->
             indiceCaminhoSelecionado = i
-            exibirCaminhoSelecionado()
+
+            if (algoritmoSelecionado == Algoritmo.Recursivo)
+                exibirCaminhoSelecionado()
         }
 
         // leitura e conversão do arquivo JSON de caminhos
@@ -285,6 +287,8 @@ class MainActivity : AppCompatActivity() {
 
         // busca pelo menor caminho através do algoritmo de dijsktra
         val menorCaminho = grafo.acharCaminho(cidadeOrigem, cidadeDestino)
+
+        redefinirBusca()
 
         // limpa a list view
         // e adiciona o menor caminho retornado na list view
